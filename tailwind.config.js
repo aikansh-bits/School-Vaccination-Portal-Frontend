@@ -12,10 +12,13 @@ module.exports = {
                 black: '#000000',
                 white: '#ffffff',
                 softPurple: '#cfcfff',
+                lightPurple: '#f1f0ff',
                 yellowSoft: '#fae37d',
                 lightBlue: '#c3ebfa',
                 graySoft: '#686e92',
-                graybackground: '#f7f8fa'
+                graybackground: '#f7f8fa',
+                borderSubtleGray:'#ECECEC',
+                disabledButton: '#bebebe',
             }
         },
     },

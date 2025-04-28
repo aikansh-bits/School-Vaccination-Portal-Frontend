@@ -1,6 +1,6 @@
 const Header = () => {
   return (
-    <div className="flex flex-row gap-[16px]">
+    <div className="flex flex-row gap-[16px] self-end">
       <div className="flex flex-col">
         <span>Hello! Aikansh Boyal</span>
         <span className="text-[12px] self-end">Co-ordinator</span>

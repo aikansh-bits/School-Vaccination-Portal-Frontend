@@ -1,13 +1,15 @@
 import { useState } from "react";
 import Logo from "../assets/logo.PNG";
+import { useNavigate } from "react-router-dom";
 
 const LeftNavigationPanel = () => {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState("Dashboard");
 
   const menuItems = [
-    { name: "Dashboard", icon: "home" },
-    { name: "Students", icon: "school" },
-    { name: "Vaccine Drives", icon: "vaccines" },
+    { name: "Dashboard", icon: "home" , path: "dashboard" },
+    { name: "Students", icon: "school" , path: "students"},
+    { name: "Vaccine Drives", icon: "vaccines" , path: "drives"},
   ];
 
   const otherItems = [
@@ -24,23 +26,23 @@ const LeftNavigationPanel = () => {
       {menuItems.map((item) => (
         <div
           key={item.name}
-          onClick={() => setSelected(item.name)}
+          onClick={() => {
+            setSelected(item.name);
+            navigate(`/${item.path.toLowerCase()}`);
+          }}
           className={`flex flex-row items-center gap-[8px] px-[8px] rounded-[8px] h-[42px] cursor-pointer ${
             selected === item.name ? "bg-lightBlue" : ""
-          }`}
-        >
+          }`}>
           <span
             className={`material-symbols-outlined ${
               selected === item.name ? "text-black" : "text-graySoft"
-            }`}
-          >
+            }`}>
             {item.icon}
           </span>
           <span
             className={`text-[14px] font-medium ${
               selected === item.name ? "text-black" : "text-graySoft"
-            }`}
-          >
+            }`}>
             {item.name}
           </span>
         </div>
@@ -53,20 +55,17 @@ const LeftNavigationPanel = () => {
           onClick={() => setSelected(item.name)}
           className={`flex flex-row items-center gap-[8px] px-[8px] rounded-[8px] h-[42px] cursor-pointer ${
             selected === item.name ? "bg-lightBlue" : ""
-          }`}
-        >
+          }`}>
           <span
             className={`material-symbols-outlined ${
               selected === item.name ? "text-black" : "text-graySoft"
-            }`}
-          >
+            }`}>
             {item.icon}
           </span>
           <span
             className={`text-[14px] font-medium ${
               selected === item.name ? "text-black" : "text-graySoft"
-            }`}
-          >
+            }`}>
             {item.name}
           </span>
         </div>
