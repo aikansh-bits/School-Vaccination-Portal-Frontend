@@ -1,6 +1,6 @@
 import TabSwitcher from "../../components/tab_switcher";
 import SignIn from "./signin";
-import Register from "./create_account";
+import SignUp from "./signup";
 import Logo from "../../assets/logo.PNG";
 import Lottie from "lottie-react";
 import HandLottie from "../../assets/hand.json";
@@ -12,8 +12,8 @@ const LoginPage = () => {
       component: <SignIn />,
     },
     {
-      label: "Register",
-      component: <Register />,
+      label: "Sign Up",
+      component: <SignUp />,
     },
   ];
 

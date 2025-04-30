@@ -1,14 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RightSlider from "../../components/slider_panel";
 import CustomTextInput from "../../components/custom_text_input";
 import CustomDropdown from "../../components/custom_dropdown";
 import CustomButton from "../../components/custom_button";
+import { GetAllStudentResponseData } from "../../services/models/students/GetAllStudents";
+import { studentApis } from "../../services/apis/student_apis";
 
 const Students = () => {
   const [isAddStudentPopupOpen, setAddStudentPopupOpen] = useState(false);
   const [fullName, setFullName] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedDrive, setSelectedDrive] = useState("");
+  const [studentData, setStudentData] = useState<GetAllStudentResponseData[]>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState("");
+
+  const getStudents = async () => {
+    try {
+      setIsLoading(true);
+      const response = await studentApis.getStudents();
+      setStudentData(response.data);
+      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error.message ||
+        "Something went wrong";
+      setError(errorMessage);
+    }
+  };
+
+  useEffect(() => {
+    getStudents();
+  }, []);
 
   return (
     <div className="flex flex-col bg-graybackground h-full w-full p-[20px] gap-[40px]">
@@ -35,20 +60,25 @@ const Students = () => {
             Mark New Vaccine
           </span>
         </div>
-        <div className="flex flex-row justify-between px-[16px] py-[12px]">
-          <span className="text-[14px] w-[20%]">STU002</span>
-          <span className="text-[14px] w-[20%]">Rahul Mehta</span>
-          <span className="text-[14px] w-[20%]">5</span>
-          <span className="text-[14px] w-[20%]">Hepatitis B</span>
-          <span className="text-[14px] w-[20%]">Add Vaccine</span>
-        </div>
-        <div className="flex flex-row justify-between px-[16px] py-[12px]">
-          <span className="text-[14px] w-[20%]">STU002</span>
-          <span className="text-[14px] w-[20%]">Rahul Mehta</span>
-          <span className="text-[14px] w-[20%]">5</span>
-          <span className="text-[14px] w-[20%]">Hepatitis B</span>
-          <span className="text-[14px] w-[20%]">Add Vaccine</span>
-        </div>
+        {studentData?.map((e) => {
+          return (
+            <div className="flex flex-row justify-between px-[16px] py-[12px]">
+              <span className="text-[14px] w-[20%]">{e.studentId}</span>
+              <span className="text-[14px] w-[20%]">{e.name}</span>
+              <span className="text-[14px] w-[20%]">{e.class}</span>
+              <span className="text-[14px] w-[20%]">
+                {e.vaccinations.map((item) => {
+                  return (
+                    <span className="text-[14px] w-[20%]">
+                      {item.vaccineName}{" "}
+                    </span>
+                  );
+                })}
+              </span>
+              <span className="text-[14px] w-[20%]">Mark</span>
+            </div>
+          );
+        })}
       </div>
       <RightSlider
         isOpen={isAddStudentPopupOpen}

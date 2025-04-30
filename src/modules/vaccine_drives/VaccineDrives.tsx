@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RightSlider from "../../components/slider_panel";
 import CustomTextInput from "../../components/custom_text_input";
 import CustomDropdown from "../../components/custom_dropdown";
@@ -7,6 +7,8 @@ import { Calendar } from "react-date-range";
 import { enUS } from "date-fns/locale";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import { driveApis } from "../../services/apis/drive_apis";
+import { GetAllDrivesResponseData } from "../../services/models/drive/GetAllDrives";
 
 const VaccineDrives = () => {
   const [isAddDrivePopupOpen, setAddDrivePopupOpen] = useState(false);
@@ -14,7 +16,10 @@ const VaccineDrives = () => {
   const [dosesAvailable, setDosesAvailable] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedTime, setSelectedTime] = useState<string>("10:00"); // Default 10AM
+  const [selectedTime, setSelectedTime] = useState<string>("10:00");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState("");
+  const [driveData, setDriveData] = useState<GetAllDrivesResponseData[]>();
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
@@ -23,6 +28,26 @@ const VaccineDrives = () => {
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedTime(e.target.value);
   };
+
+  const getVaccineDrives = async () => {
+    try {
+      setIsLoading(true);
+      const response = await driveApis.getAllDrives();
+      setDriveData(response.data);
+      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error.message ||
+        "Something went wrong";
+      setError(errorMessage);
+    }
+  };
+
+  useEffect(() => {
+    getVaccineDrives();
+  }, []);
 
   return (
     <div className="flex flex-col bg-graybackground h-full w-full p-[20px] gap-[40px]">
@@ -41,7 +66,7 @@ const VaccineDrives = () => {
       <div className="flex flex-col rounded-[8px] bg-white border border-border-graybackground">
         <div className="flex flex-row px-[16px] py-[8px] border-b border-border-graybackground">
           <span className="text-[14px] w-[20%] font-semibold">
-            Vaccination Id
+            Scheduled At
           </span>
           <span className="text-[14px] w-[20%] font-semibold">
             Vaccination Name
@@ -53,23 +78,34 @@ const VaccineDrives = () => {
             Applicable Grades
           </span>
           <span className="text-[14px] w-[20%] font-semibold">Created By</span>
+          <span className="text-[14px] w-[20%] font-semibold">Status</span>
         </div>
 
         {/* Sample Rows */}
-        <div className="flex flex-row justify-between px-[16px] py-[12px]">
-          <span className="text-[14px] w-[20%]">DRV001</span>
-          <span className="text-[14px] w-[20%]">Hepatitis B</span>
-          <span className="text-[14px] w-[20%]">50</span>
-          <span className="text-[14px] w-[20%]">Grade 3</span>
-          <span className="text-[14px] w-[20%]">Adarsh Sharma</span>
-        </div>
-        <div className="flex flex-row justify-between px-[16px] py-[12px]">
-          <span className="text-[14px] w-[20%]">DRV002</span>
-          <span className="text-[14px] w-[20%]">Polio</span>
-          <span className="text-[14px] w-[20%]">100</span>
-          <span className="text-[14px] w-[20%]">Grade 5</span>
-          <span className="text-[14px] w-[20%]">Aikansh Boyal</span>
-        </div>
+        {driveData?.map((e) => {
+          return (
+            <div className="flex flex-row justify-between px-[16px] py-[12px]">
+              <span className="text-[14px] w-[20%]">
+                {new Date(e.scheduledDate.toString())
+                  .toLocaleString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: true,
+                    timeZone: "Asia/Kolkata",
+                  })
+                  .toUpperCase()}
+              </span>
+
+              <span className="text-[14px] w-[20%]">{e.vaccineName}</span>
+              <span className="text-[14px] w-[20%]">{e.dosesAvailable}</span>
+              <span className="text-[14px] w-[20%]">{e.applicableClasses}</span>
+              <span className="text-[14px] w-[20%]">{e.createdBy}</span>
+              <span className="text-[14px] w-[20%]">Status</span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Add Drive Right Slider */}

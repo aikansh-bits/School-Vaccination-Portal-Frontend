@@ -1,15 +1,16 @@
 import { useState } from "react";
 import Logo from "../assets/logo.PNG";
 import { useNavigate } from "react-router-dom";
+import secureLocalStorage from "react-secure-storage";
 
 const LeftNavigationPanel = () => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState("Dashboard");
 
   const menuItems = [
-    { name: "Dashboard", icon: "home" , path: "dashboard" },
-    { name: "Students", icon: "school" , path: "students"},
-    { name: "Vaccine Drives", icon: "vaccines" , path: "drives"},
+    { name: "Dashboard", icon: "home", path: "dashboard" },
+    { name: "Students", icon: "school", path: "students" },
+    { name: "Vaccine Drives", icon: "vaccines", path: "drives" },
   ];
 
   const otherItems = [
@@ -52,7 +53,13 @@ const LeftNavigationPanel = () => {
       {otherItems.map((item) => (
         <div
           key={item.name}
-          onClick={() => setSelected(item.name)}
+          onClick={() => {
+            setSelected(item.name);
+            if (item.name.toLowerCase() === "logout") {
+              secureLocalStorage.clear();
+              navigate("/login");
+            }
+          }}
           className={`flex flex-row items-center gap-[8px] px-[8px] rounded-[8px] h-[42px] cursor-pointer ${
             selected === item.name ? "bg-lightBlue" : ""
           }`}>
