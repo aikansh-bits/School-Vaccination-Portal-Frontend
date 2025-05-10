@@ -42,7 +42,11 @@ const VaccineDrives = () => {
         <span className="text-[18px]">Vaccination Drives</span>
         <div
           className="rounded-[8px] bg-lightBlue px-[8px] py-[8px] flex flex-row gap-[4px] items-center cursor-pointer"
-          onClick={() => setAddDrivePopupOpen(true)}>
+          onClick={() => {
+            setSelectedDrive(null);
+            setAddDrivePopupOpen(true);
+            setIsUpdateDrive(false);
+          }}>
           <span className="material-symbols-outlined text-[20px]">add</span>
           <span>ADD DRIVE</span>
         </div>
@@ -66,68 +70,87 @@ const VaccineDrives = () => {
           <span className="text-[14px] w-[20.28%] font-semibold text-center">
             Created By
           </span>
-          <span className="text-[14px] w-[14.28%] font-semibold text-center">Status</span>
+          <span className="text-[14px] w-[14.28%] font-semibold text-center">
+            Status
+          </span>
           <span className="text-[14px] w-[5%] font-semibold">Actions</span>
         </div>
 
-        {driveData?.map((e, index) => (
-          <div
-            key={index}
-            className="flex flex-row px-[16px] py-[12px]">
-            <span className="text-[14px] w-[14.28%]">
-              {new Date(e.scheduledDate)
-                .toLocaleString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: true,
-                  timeZone: "Asia/Kolkata",
-                })
-                .toUpperCase()}
-            </span>
-            <span className="text-[14px] w-[17.56%]">{e.vaccineName}</span>
-            <span className="text-[14px] w-[14.28%] ">{e.dosesAvailable}</span>
-            <span className="text-[14px] w-[14.28%] text-center">{e.applicableClasses}</span>
-            <span className="text-[14px] w-[20.28%] text-center">{e.createdBy}</span>
-            <div className=" w-[14.28%] flex flex-row items-center place-content-center">
-              <span
-                className={`text-[14px] py-[4px] px-[6px] rounded-[4px] inline-block ${
-                  driveStatusColor.getDriveStatusColor(e.status).textColor
-                } ${driveStatusColor.getDriveStatusColor(e.status).bgColor}`}>
-                {e.status.toUpperCase()}
+        {/* If there is no drive data, show a message */}
+        {driveData.length === 0 ? (
+          <span className="text-center py-4 text-gray-500">
+            No vaccination drives available.
+          </span>
+        ) : (
+          driveData?.map((e, index) => (
+            <div key={index} className="flex flex-row px-[16px] py-[12px]">
+              <span className="text-[14px] w-[14.28%]">
+                {new Date(e.scheduledDate) // UTC date received from backend
+                  .toLocaleString("en-IN", {
+                    timeZone: "Asia/Kolkata", // Convert UTC to IST (Indian Standard Time)
+                    day: "numeric",
+                    month: "short",
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: true,
+                  })
+                  .toUpperCase()}
               </span>
-            </div>
 
-            <div className="flex flex-row w-[5%]">
-              {!e.isExpired && e.status.toLowerCase() !== "today" && (
+              <span className="text-[14px] w-[17.56%]">{e.vaccineName}</span>
+              <span className="text-[14px] w-[14.28%] ">
+                {e.dosesAvailable}
+              </span>
+              <span className="text-[14px] w-[14.28%] text-center">
+                {e.applicableClasses}
+              </span>
+              <span className="text-[14px] w-[20.28%] text-center">
+                {e.createdBy}
+              </span>
+              <div className="w-[14.28%] flex flex-row items-center place-content-center">
                 <span
-                  className="material-symbols-outlined cursor-pointer text-end"
-                  onClick={() => {
-                    setSelectedDrive(e);
-                    setIsUpdateDrive(true);
-                    setAddDrivePopupOpen(true);
-                  }}>
-                  edit
+                  className={`text-[14px] py-[4px] px-[6px] rounded-[4px] inline-block ${
+                    driveStatusColor.getDriveStatusColor(e.status).textColor
+                  } ${driveStatusColor.getDriveStatusColor(e.status).bgColor}`}>
+                  {e.status.toUpperCase()}
                 </span>
-              )}
+              </div>
+
+              <div className="flex flex-row w-[5%]">
+                {!e.isExpired && e.status.toLowerCase() !== "today" && (
+                  <span
+                    className="material-symbols-outlined cursor-pointer text-end"
+                    onClick={() => {
+                      setSelectedDrive(e);
+                      setIsUpdateDrive(true);
+                      setAddDrivePopupOpen(true);
+                    }}>
+                    edit
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Add Drive Right Slider */}
       <RightSlider
         isOpen={isAddDrivePopupOpen}
-        onClose={() => setAddDrivePopupOpen(false)}
+        onClose={() => {
+          setAddDrivePopupOpen(false);
+          setSelectedDrive(null);
+        }}
         title={isUpdateDrive ? "Update drive" : "Add new drive"}>
         <CreateVaccineDrive
           isUpdateDrive={isUpdateDrive}
           drive={selectedDrive}
-          onDriveAdded={() => {
-            getVaccineDrives();
+          onClose={() => {
             setAddDrivePopupOpen(false);
+            setSelectedDrive(null);
           }}
+          refreshDrives={getVaccineDrives}
+          isOpen={isAddDrivePopupOpen}
         />
       </RightSlider>
     </div>

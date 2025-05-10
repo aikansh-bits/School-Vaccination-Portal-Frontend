@@ -8,41 +8,45 @@ import CustomDropdown from "../../components/custom_dropdown";
 import CustomButton from "../../components/custom_button";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { CreateDrivePayload } from "../../services/models/drive/CreateDrive";
-import secureLocalStorage from "react-secure-storage";
 import { driveApis } from "../../services/apis/drive_apis";
+import secureLocalStorage from "react-secure-storage";
 import { GetAllDrivesResponseData } from "../../services/models/drive/GetAllDrives";
-import { UpdateDrivePayload } from "../../services/models/drive/UpdateDrive";
+
+interface CreateVaccineProps {
+  onClose: () => void;
+  refreshDrives: () => void;
+  isOpen: boolean;
+  isUpdateDrive: boolean;
+  drive?: GetAllDrivesResponseData | null;
+}
 
 const CreateVaccineDrive = ({
-  onDriveAdded,
+  refreshDrives,
   drive,
   isUpdateDrive,
-}: {
-  onDriveAdded: () => void;
-  drive?: GetAllDrivesResponseData | null;
-  isUpdateDrive: boolean;
-}) => {
+  onClose,
+  isOpen,
+}: CreateVaccineProps) => {
   const [vaccineName, setVaccineName] = useState("");
   const [dosesAvailable, setDosesAvailable] = useState("");
   const [selectedGradeFrom, setSelectedGradeFrom] = useState("");
   const [selectedGradeTo, setSelectedGradeTo] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedTime, setSelectedTime] = useState<string>("10:00");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
+
   const today = startOfDay(new Date());
   const fifteenDaysFromToday = addDays(today, 14);
 
   const handleSubmit = async () => {
     setError(""); // Clear previous error
 
+    // Create a date object for the selected date and fixed time 10:00 AM IST
     const scheduledDateTime = new Date(selectedDate);
-    const [hours, minutes] = selectedTime.split(":");
-    scheduledDateTime.setHours(Number(hours), Number(minutes));
+    scheduledDateTime.setHours(10, 0, 0, 0); // Set time to 10:00 AM IST
 
-    // Optional: validate grade range
+    // The payload to send to the backend
     const gradeFromNum = selectedGradeFrom.replace(/\D/g, "");
     const gradeToNum = selectedGradeTo.replace(/\D/g, "");
     if (gradeFromNum > gradeToNum) {
@@ -50,23 +54,19 @@ const CreateVaccineDrive = ({
       return;
     }
 
+    const payload = {
+      vaccineName: vaccineName.trim(),
+      scheduledDate: scheduledDateTime.toISOString(), // Convert to UTC before sending
+      dosesAvailable: Number(dosesAvailable),
+      applicableClasses: `Grade ${gradeFromNum}-${gradeToNum}`,
+      createdBy: String(secureLocalStorage.getItem("fullName") ?? ""),
+    };
+
     try {
       setIsLoading(true);
-      // Adjust for IST (UTC+5:30)
-      const istAdjustedDate = new Date(
-        scheduledDateTime.getTime() -
-          scheduledDateTime.getTimezoneOffset() * 60000
-      );
-
-      const payload: CreateDrivePayload = {
-        vaccineName: vaccineName.trim(),
-        scheduledDate: istAdjustedDate.toISOString(),
-        dosesAvailable: Number(dosesAvailable),
-        applicableClasses: `Grade ${gradeFromNum}-${gradeToNum}`,
-        createdBy: String(secureLocalStorage.getItem("fullName") ?? ""),
-      };
-      await driveApis.createDrive(payload);
-      onDriveAdded();
+      await driveApis.createDrive(payload); // Send to backend
+      refreshDrives(); // Refresh the drive list
+      onClose();
     } catch (err: any) {
       setError(err?.response?.data?.message || "Something went wrong");
     } finally {
@@ -77,11 +77,10 @@ const CreateVaccineDrive = ({
   const updateDrive = async () => {
     setError(""); // Clear previous error
 
+    // Create a date object for the selected date and fixed time 10:00 AM IST
     const scheduledDateTime = new Date(selectedDate);
-    const [hours, minutes] = selectedTime.split(":");
-    scheduledDateTime.setHours(Number(hours), Number(minutes));
+    scheduledDateTime.setHours(10, 0, 0, 0); // Set time to 10:00 AM IST
 
-    // Optional: validate grade range
     const gradeFromNum = selectedGradeFrom.replace(/\D/g, "");
     const gradeToNum = selectedGradeTo.replace(/\D/g, "");
     if (gradeFromNum > gradeToNum) {
@@ -89,31 +88,26 @@ const CreateVaccineDrive = ({
       return;
     }
 
+    const payload = {
+      vaccineName: vaccineName.trim(),
+      scheduledDate: scheduledDateTime.toISOString(), // Convert to UTC before sending
+      dosesAvailable: Number(dosesAvailable),
+      applicableClasses: `Grade ${gradeFromNum}-${gradeToNum}`,
+      createdBy: String(secureLocalStorage.getItem("fullName") ?? ""),
+      status: selectedStatus.toLowerCase(),
+    };
+
     try {
       setIsLoading(true);
-      // Adjust for IST (UTC+5:30)
-      const istAdjustedDate = new Date(
-        scheduledDateTime.getTime() -
-          scheduledDateTime.getTimezoneOffset() * 60000
-      );
-
-      const payload: UpdateDrivePayload = {
-        vaccineName: vaccineName.trim(),
-        scheduledDate: istAdjustedDate.toISOString(),
-        dosesAvailable: Number(dosesAvailable),
-        applicableClasses: `Grade ${gradeFromNum}-${gradeToNum}`,
-        createdBy: String(secureLocalStorage.getItem("fullName") ?? ""),
-        status: selectedStatus.toLowerCase(),
-      };
-      await driveApis.updateDrive(payload, drive!._id);
-      onDriveAdded();
+      await driveApis.updateDrive(payload, drive!._id); // Update the drive on the backend
+      refreshDrives(); // Refresh the list of drives after the update
+      onClose();
     } catch (err: any) {
       setError(err?.response?.data?.message || "Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     if (drive) {
       setVaccineName(drive.vaccineName);
@@ -122,19 +116,19 @@ const CreateVaccineDrive = ({
       const [from, to] = drive.applicableClasses
         .replace(/Grade /g, "")
         .split("-");
-
       setSelectedGradeFrom(`Grade ${from.trim()}`);
       setSelectedGradeTo(`Grade ${to.trim()}`);
-
       const date = new Date(drive.scheduledDate);
       setSelectedDate(date);
-
-      // Format time to "HH:MM" (local)
-      const localHours = date.getHours().toString().padStart(2, "0");
-      const localMinutes = date.getMinutes().toString().padStart(2, "0");
-      setSelectedTime(`${localHours}:${localMinutes}`);
+    } else {
+      setVaccineName("");
+      setDosesAvailable("");
+      setSelectedGradeFrom("");
+      setSelectedGradeTo("");
+      setSelectedStatus("");
+      setSelectedDate(new Date());
     }
-  }, [drive]);
+  }, [drive, isOpen]);
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-y-scroll gap-[20px] pr-2">
@@ -197,7 +191,7 @@ const CreateVaccineDrive = ({
       </div>
       <div className="flex flex-col gap-[4px]">
         <span className="text-black text-sm font-medium">
-          Select Drive Date & Time
+          Select Drive Date
         </span>
         <div className="rounded-[8px] border border-borderSubtleGray flex flex-col px-[16px] pb-[16px] gap-[16px]">
           <Calendar
@@ -223,12 +217,6 @@ const CreateVaccineDrive = ({
               );
             }}
           />
-          <input
-            type="time"
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2"
-          />
         </div>
       </div>
       {isUpdateDrive && (
@@ -243,7 +231,7 @@ const CreateVaccineDrive = ({
       <div className="flex flex-row items-center bg-yellowSoft rounded-[8px] p-[8px] gap-[8px]">
         <span className="material-symbols-outlined text-black">info</span>
         <span className="text-black text-sm font-normal">
-          Vaccination drive can only scheduled 15 days in advance.
+          Vaccination drive can only be scheduled 15 days in advance.
         </span>
       </div>
       {error && (
