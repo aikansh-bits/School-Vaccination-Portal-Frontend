@@ -14,7 +14,7 @@ const LeftNavigationPanel = () => {
   ];
 
   const otherItems = [
-    { name: "Profile", icon: "account_circle" },
+    // { name: "Profile", icon: "account_circle" },
     { name: "Logout", icon: "logout" },
   ];
 

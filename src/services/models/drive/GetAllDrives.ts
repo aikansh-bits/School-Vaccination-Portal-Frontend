@@ -1,12 +1,14 @@
 export interface GetAllDrivesResponse {
-  status: String;
+  status: string;
   data: GetAllDrivesResponseData[];
 }
 export interface GetAllDrivesResponseData {
-  _id: String;
-  vaccineName: String;
-  scheduledDate: String;
+  _id: string;
+  vaccineName: string;
+  scheduledDate: string;
   dosesAvailable: number;
-  applicableClasses: String;
-  createdBy: String;
+  applicableClasses: string;
+  createdBy: string;
+  isExpired: boolean;
+  status: string;
 }

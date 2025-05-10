@@ -1,18 +1,18 @@
 export interface GetDashboardSummaryResponse {
   data: GetDashboardSummaryResponseData;
-  status: String;
+  status: string;
 }
 export interface GetDashboardSummaryResponseData {
   totalStudents: number;
   vaccinatedStudents: number;
-  vaccinationPercentage: String;
+  vaccinationPercentage: string;
   upcomingDrives: UpcomingDrives[];
 }
 
 export interface UpcomingDrives {
-  _id: String;
-  vaccineName: String;
-  scheduledDate: String;
+  _id: string;
+  vaccineName: string;
+  scheduledDate: string;
   dosesAvailable: number;
-  applicableClasses: String;
+  applicableClasses: string;
 }

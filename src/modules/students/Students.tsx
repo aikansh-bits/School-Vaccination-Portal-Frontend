@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import RightSlider from "../../components/slider_panel";
-import CustomTextInput from "../../components/custom_text_input";
-import CustomDropdown from "../../components/custom_dropdown";
-import CustomButton from "../../components/custom_button";
 import { GetAllStudentResponseData } from "../../services/models/students/GetAllStudents";
 import { studentApis } from "../../services/apis/student_apis";
+import StudentRowSkeletonLoading from "./StudentRowSkeletonLoading";
+import AddStudentSlider from "./AddStudentSlider";
 
 const Students = () => {
   const [isAddStudentPopupOpen, setAddStudentPopupOpen] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [selectedGrade, setSelectedGrade] = useState("");
-  const [selectedDrive, setSelectedDrive] = useState("");
+  const [selectedStudent, setSelectedStudent] =
+    useState<GetAllStudentResponseData | null>(null);
   const [studentData, setStudentData] = useState<GetAllStudentResponseData[]>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [isStudentUpdate, setIsStudentUpdate] = useState<boolean>(false);
 
   const getStudents = async () => {
     try {
@@ -42,103 +41,93 @@ const Students = () => {
         <div
           className="rounded-[8px] bg-lightBlue px-[8px] py-[8px] flex flex-row gap-[4px] items-center cursor-pointer"
           onClick={() => {
+            setSelectedStudent(null);
             setAddStudentPopupOpen(true);
+            setIsStudentUpdate(false);
           }}>
           <span className="material-symbols-outlined text-[20px]">add</span>
           <span>ADD STUDENT</span>
         </div>
       </div>
       <div className="flex flex-col rounded-[8px] bg-white border border-border-graybackground">
-        <div className="flex flex-row  px-[16px] py-[8px] border-b border-border-graybackground ">
-          <span className="text-[14px] w-[20%] font-semibold">Student Id</span>
-          <span className="text-[14px] w-[20%] font-semibold">Name</span>
-          <span className="text-[14px] w-[20%] font-semibold">Grade</span>
-          <span className="text-[14px] w-[20%] font-semibold">
+        <div className="flex flex-row px-[16px] py-[12px] border-b border-border-graybackground bg-slate-200 rounded-t-[8px]">
+          <span className="text-[14px] w-[12.5%] font-semibold">
+            Student Id
+          </span>
+          <span className="text-[14px] w-[12.5%] font-semibold">Name</span>
+          <span className="text-[14px] w-[12.5%] font-semibold">
+            Date Of Birth
+          </span>
+          <span className="text-[14px] w-[16%] font-semibold">Address</span>
+          <span className="text-[14px] w-[12.5%] font-semibold">
+            Mobile Number
+          </span>
+          <span className="text-[14px] w-[12.5%] font-semibold">Grade</span>
+          <span className="text-[14px] w-[16.5%] font-semibold">
             Vaccinated With
           </span>
-          <span className="text-[14px] w-[20%] font-semibold">
-            Mark New Vaccine
+          <span className="text-[14px] w-[5%] font-semibold text-right">
+            Actions
           </span>
         </div>
-        {studentData?.map((e) => {
-          return (
-            <div className="flex flex-row justify-between px-[16px] py-[12px]">
-              <span className="text-[14px] w-[20%]">{e.studentId}</span>
-              <span className="text-[14px] w-[20%]">{e.name}</span>
-              <span className="text-[14px] w-[20%]">{e.class}</span>
-              <span className="text-[14px] w-[20%]">
-                {e.vaccinations.map((item) => {
-                  return (
-                    <span className="text-[14px] w-[20%]">
-                      {item.vaccineName}{" "}
-                    </span>
-                  );
-                })}
+
+        {isLoading ? (
+          <StudentRowSkeletonLoading />
+        ) : (
+          studentData?.map((e, index) => (
+            <div className="flex flex-row px-[16px] py-[12px] border-b border-b-borderSubtleGray" key={index}>
+              <span className="text-[14px] w-[12.5%]">{e.studentId}</span>
+              <span className="text-[14px] w-[12.5%]">{e.name}</span>
+              <span className="text-[14px] w-[12.5%]">{e.dob}</span>
+              <span className="text-[14px] w-[16%]">{e.address || "--"}</span>
+              <span className="text-[14px] w-[12.5%]">
+                {e.mobileNumber || "--"}
               </span>
-              <span className="text-[14px] w-[20%]">Mark</span>
+              <span className="text-[14px] w-[12.5%]">{e.class}</span>
+              <span className="text-[14px] w-[16.5%]">
+                {e.vaccinations.length
+                  ? e.vaccinations.map((v, i) => (
+                      <span key={i}>
+                        {v.vaccineName}
+                        {i < e.vaccinations.length - 1 ? ", " : ""}
+                      </span>
+                    ))
+                  : "--"}
+              </span>
+              <span
+                className="material-symbols-outlined w-[5%] text-right cursor-pointer"
+                onClick={() => {
+                  setSelectedStudent(e);
+                  setAddStudentPopupOpen(true);
+                  setIsStudentUpdate(true);
+                }}>
+                edit
+              </span>
             </div>
-          );
-        })}
+          ))
+        )}
       </div>
+
       <RightSlider
         isOpen={isAddStudentPopupOpen}
         onClose={() => {
           setAddStudentPopupOpen(false);
-          setFullName("");
-          setSelectedGrade("");
-          setSelectedDrive("");
+          setSelectedStudent(null);
         }}
-        title="Add new student">
-        <div className="h-[calc(100vh-80px)] flex flex-col justify-between gap-[20px]">
-          {/* Form Section */}
-          <div className="flex flex-col gap-[20px]">
-            <CustomTextInput
-              label="Student's Name*"
-              placeholder="Enter Full Name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              fullWidth
-            />
-            <CustomDropdown
-              label="Select Grade*"
-              options={[
-                "Grade 1",
-                "Grade 2",
-                "Grade 3",
-                "Grade 4",
-                "Grade 5",
-                "Grade 6",
-                "Grade 7",
-                "Grade 8",
-                "Grade 9",
-                "Grade 10",
-                "Grade 11",
-                "Grade 12",
-              ]}
-              value={selectedGrade}
-              onChange={(val) => setSelectedGrade(val)}
-              fullWidth
-            />
-            <CustomDropdown
-              label="Select Vaccination Drive"
-              options={["Hepatitis B", "Polio", "Corona Vaccine"]}
-              value={selectedDrive}
-              onChange={(val) => setSelectedDrive(val)}
-              fullWidth
-            />
-          </div>
-
-          {/* Button Section */}
-          <div className="mt-auto">
-            <CustomButton
-              text={"ADD STUDENT"}
-              isActive={fullName.trim() !== "" && selectedGrade.trim() !== ""}
-              onClick={() => {}}
-            />
-          </div>
-        </div>
+        title={selectedStudent ? "Edit Student" : "Add new student"}>
+        <AddStudentSlider
+          isStudentUpdate={isStudentUpdate}
+          onClose={() => {
+            setAddStudentPopupOpen(false);
+            setSelectedStudent(null);
+          }}
+          refreshStudents={getStudents}
+          isOpen={isAddStudentPopupOpen}
+          initialData={selectedStudent}
+        />
       </RightSlider>
     </div>
   );
 };
+
 export default Students;

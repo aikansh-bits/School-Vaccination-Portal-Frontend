@@ -1,8 +1,8 @@
 export interface SignUpPayload {
-  name: String;
-  email: String;
-  password: String;
-  role: String;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
 }
 export interface SignUpResponse {
   status: string;
@@ -10,9 +10,9 @@ export interface SignUpResponse {
 }
 
 export interface SignUpResponseData {
-  _id: String;
-  userId: String;
-  name: String;
-  email: String;
-  role: String;
+  _id: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
 }

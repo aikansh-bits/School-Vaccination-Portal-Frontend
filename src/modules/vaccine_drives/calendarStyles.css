@@ -1,0 +1,18 @@
+/* Past dates: default grey */
+.grey-day {
+    color: gray;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Today and next 14 days: red, unselectable */
+.red-day {
+    color: red;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* Fix selected date text (future dates): ensure it's visible */
+.react-date-range__day--selected {
+    color: black !important;
+}

@@ -1,17 +1,17 @@
 export interface SignInResponse {
-  status: String;
+  status: string;
   data: SignInResponseData;
 }
 
 export interface SignInResponseData {
-  _id: String;
-  userId: String;
-  name: String;
-  email: String;
-  role: String;
+  _id: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
 }
 
 export interface SignInPayload{
-    email: String;
-    password: String;
+    email: string;
+    password: string;
 }

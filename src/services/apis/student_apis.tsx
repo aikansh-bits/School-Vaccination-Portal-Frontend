@@ -1,6 +1,10 @@
 import axios, { AxiosInstance } from "axios";
-import { GetDashboardSummaryResponse } from "../models/dashboard/GetDashboardSummary";
 import { GetAllStudentResponse } from "../models/students/GetAllStudents";
+import {
+  CreateStudentPayload,
+  CreateStudentResponseModel,
+} from "../models/students/CreateStudent";
+import { UpdateStudentPayload, UpdateStudentResponseModel } from "../models/students/UpdateStudent";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -20,6 +24,37 @@ class StudentApis {
     try {
       const response = await this.api.get<GetAllStudentResponse>(
         "/api/students/getAllStudents"
+      );
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async createStudent(
+    payload: CreateStudentPayload
+  ): Promise<CreateStudentResponseModel> {
+    try {
+      const response = await this.api.post<CreateStudentResponseModel>(
+        "/api/students/createStudent",
+        payload
+      );
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async updateStudent(
+    payload: UpdateStudentPayload,
+    studentId: String
+  ): Promise<UpdateStudentResponseModel> {
+    try {
+      const response = await this.api.put<UpdateStudentResponseModel>(
+        `/api/students/updateStudent/${studentId}`,
+        payload
       );
       console.log(response.data);
       return response.data;
