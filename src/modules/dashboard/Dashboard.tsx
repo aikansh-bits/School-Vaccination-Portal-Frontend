@@ -56,46 +56,52 @@ const Dashboard = () => {
           <span className="text-[16px] font-medium mb-[20px]">
             Upcoming Drive
           </span>
-          {dashboardData?.upcomingDrives.map((e) => {
-            return (
-              <div className="flex flex-row items-center  justify-between bg-lightPurple p-[16px] rounded-[16px] mb-[16px]">
-                <div className="flex flex-row items-center gap-[16px]">
-                  <div className="flex flex-col">
-                    <span className="text-[12px]">
-                      {new Date(e.scheduledDate.toString())
-                        .toLocaleString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          timeZone: "Asia/Kolkata",
-                        })
-                        .toUpperCase()}
-                    </span>
+          {dashboardData?.upcomingDrives.length === 0 ? (
+            <span>No upcoming drive</span>
+          ) : (
+            dashboardData?.upcomingDrives.map((e) => {
+              return (
+                <div
+                  className="flex flex-row items-center justify-between bg-lightPurple p-[16px] rounded-[16px] mb-[16px]"
+                  key={e._id}>
+                  <div className="flex flex-row items-center gap-[16px]">
+                    <div className="flex flex-col">
+                      <span className="text-[12px]">
+                        {new Date(e.scheduledDate.toString())
+                          .toLocaleString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            timeZone: "Asia/Kolkata",
+                          })
+                          .toUpperCase()}
+                      </span>
 
-                    <span>
-                      {new Date(e.scheduledDate.toString())
-                        .toLocaleString("en-IN", {
-                          hour: "numeric",
-                          minute: "numeric",
-                          hour12: true,
-                          timeZone: "Asia/Kolkata",
-                        })
-                        .toUpperCase()}
-                    </span>
+                      <span>
+                        {new Date(e.scheduledDate.toString())
+                          .toLocaleString("en-IN", {
+                            hour: "numeric",
+                            minute: "numeric",
+                            hour12: true,
+                            timeZone: "Asia/Kolkata",
+                          })
+                          .toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div className="w-[2px] h-[32px] bg-white" />
+                    <div className="flex flex-col">
+                      <span className="text-[12px]">{e.applicableClasses}</span>
+                      <span className="text-[18px]">{e.vaccineName}</span>
+                    </div>
                   </div>
 
-                  <div className="w-[2px] h-[32px] bg-white" />
-                  <div className="flex flex-col">
-                    <span className="text-[12px]">{e.applicableClasses}</span>
-                    <span className="text-[18px]">{e.vaccineName}</span>
-                  </div>
+                  <span className="bg-white text-[12px] px-[8px] py-[4px] rounded-full inline-block self-center">
+                    {e.dosesAvailable}
+                  </span>
                 </div>
-
-                <span className="bg-white text-[12px] px-[8px] py-[4px] rounded-full inline-block self-center">
-                  {e.dosesAvailable}
-                </span>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
     </div>

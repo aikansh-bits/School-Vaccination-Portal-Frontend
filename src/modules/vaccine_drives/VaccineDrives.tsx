@@ -4,6 +4,7 @@ import { driveApis } from "../../services/apis/drive_apis";
 import { GetAllDrivesResponseData } from "../../services/models/drive/GetAllDrives";
 import CreateVaccineDrive from "./CreateVaccineDrive";
 import DriveStatusColor from "../../components/status_class_color";
+import VaccineRowSkeletonLoading from "./VaccineRowSkeletonLoading";
 
 const VaccineDrives = () => {
   const driveStatusColor = new DriveStatusColor();
@@ -77,7 +78,9 @@ const VaccineDrives = () => {
         </div>
 
         {/* If there is no drive data, show a message */}
-        {driveData.length === 0 ? (
+        {isLoading ? (
+          <VaccineRowSkeletonLoading />
+        ) : driveData.length === 0 ? (
           <span className="text-center py-4 text-gray-500">
             No vaccination drives available.
           </span>
