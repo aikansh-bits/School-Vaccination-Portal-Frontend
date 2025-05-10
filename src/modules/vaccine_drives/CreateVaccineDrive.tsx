@@ -119,6 +119,7 @@ const CreateVaccineDrive = ({
       setSelectedGradeFrom(`Grade ${from.trim()}`);
       setSelectedGradeTo(`Grade ${to.trim()}`);
       const date = new Date(drive.scheduledDate);
+      setSelectedStatus(drive.status.toUpperCase());
       setSelectedDate(date);
     } else {
       setVaccineName("");
@@ -222,7 +223,7 @@ const CreateVaccineDrive = ({
       {isUpdateDrive && (
         <CustomDropdown
           label="Update Status"
-          options={["Completed", "Cancelled"]}
+          options={["UPCOMING", "COMPLETED", "CANCELLED"]}
           value={selectedStatus}
           onChange={(val) => setSelectedStatus(val)}
           fullWidth
