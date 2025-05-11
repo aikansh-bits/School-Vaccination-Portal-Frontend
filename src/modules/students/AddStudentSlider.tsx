@@ -98,10 +98,20 @@ const AddStudentSlider = ({
       setError("Mobile number must be 10 digits.");
       return;
     }
+
     try {
       setError("");
       const previousVaccinations =
         initialData?.vaccinations.map((v) => v.vaccineName) || [];
+
+      if (
+        selectedDrive &&
+        previousVaccinations.includes(selectedDrive.trim())
+      ) {
+        setError("This vaccine has already been assigned to the student.");
+        return;
+      }
+
       const newVaccinations = selectedDrive
         ? [...previousVaccinations, selectedDrive.trim()]
         : previousVaccinations;
@@ -130,17 +140,21 @@ const AddStudentSlider = ({
   const getDrives = async () => {
     try {
       const response = await driveApis.getAllDrives();
-      let allDrives = response.data;
-      let drives: string[] = [];
+      const allDrives = response.data;
 
-      // Filter only drives that are not expired
+      let availableDrives: string[] = [];
+
+      // Get list of already taken vaccinations
+      const takenVaccines =
+        initialData?.vaccinations.map((v) => v.vaccineName) || [];
+
       allDrives.forEach((drive) => {
-        if (!drive.isExpired) {
-          drives.push(drive.vaccineName);
+        if (!drive.isExpired && !takenVaccines.includes(drive.vaccineName)) {
+          availableDrives.push(drive.vaccineName);
         }
       });
 
-      setDrives(drives);
+      setDrives(availableDrives);
     } catch (error) {
       console.error("Error fetching drives:", error);
     }
