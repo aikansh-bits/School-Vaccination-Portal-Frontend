@@ -15,10 +15,9 @@ This is the **frontend** for the School Vaccination Portal, built with **React.j
 
 ## ✨ Features
 
-### ✅ Simulated Authentication
+### ✅ Authentication
 
 - Role: School Coordinator (Admin)
-- Hardcoded login simulation
 - Redirect to dashboard after login
 
 ### 📊 Dashboard Overview
