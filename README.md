@@ -27,8 +27,8 @@ This is the **frontend** for the School Vaccination Portal, built with **React.j
 ## 🚀 Getting Started
 
 ### 1. Clone the repository
-git clone https://github.com/aikansh-bits/School-Vaccination-Portal-Frontend.git
-cd School-Vaccination-Portal-Frontend
+- git clone https://github.com/aikansh-bits/School-Vaccination-Portal-Frontend.git
+- cd School-Vaccination-Portal-Frontend
 
 ### 2. Install dependencies
 npm install
