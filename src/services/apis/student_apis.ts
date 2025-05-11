@@ -86,4 +86,5 @@ class StudentApis {
     }
   }
 }
+
 export const studentApis = new StudentApis();
