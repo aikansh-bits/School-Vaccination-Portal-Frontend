@@ -32,7 +32,7 @@ class AuthenticationApis {
   public async signUp(data: SignUpPayload): Promise<SignUpResponse> {
     try {
       const response = await this.api.post<SignUpResponse>(
-        "/api/users/login",
+        "/api/users/signup",
         data
       );
       console.log(response.data);
