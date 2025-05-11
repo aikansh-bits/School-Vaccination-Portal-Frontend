@@ -56,12 +56,12 @@ This is the **frontend** for the School Vaccination Portal, built with **React.j
 
 ### 2. Install dependencies
 
-npm install
+- npm install
 
 ### 3. Configure environment variables
 
-REACT_APP_API_BASE_URL=""
+- REACT_APP_API_BASE_URL=""
 
 ### 4. Run the app
 
-npm start
+- npm start
