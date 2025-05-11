@@ -6,6 +6,7 @@ import { CreateStudentPayload } from "../../services/models/students/CreateStude
 import { studentApis } from "../../services/apis/student_apis";
 import { GetAllStudentResponseData } from "../../services/models/students/GetAllStudents";
 import { UpdateStudentPayload } from "../../services/models/students/UpdateStudent";
+import { driveApis } from "../../services/apis/drive_apis";
 
 interface AddStudentSliderProps {
   onClose: () => void;
@@ -29,8 +30,12 @@ const AddStudentSlider = ({
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedDrive, setSelectedDrive] = useState("");
   const [error, setError] = useState("");
+  const [drives, setDrives] = useState<string[]>();
 
   useEffect(() => {
+    if (isOpen) {
+      getDrives();
+    }
     if (initialData) {
       setFullName(initialData.name || "");
       setSelectedGrade(initialData.class || "");
@@ -122,6 +127,25 @@ const AddStudentSlider = ({
     }
   };
 
+  const getDrives = async () => {
+    try {
+      const response = await driveApis.getAllDrives();
+      let allDrives = response.data;
+      let drives: string[] = [];
+
+      // Filter only drives that are not expired
+      allDrives.forEach((drive) => {
+        if (!drive.isExpired) {
+          drives.push(drive.vaccineName);
+        }
+      });
+
+      setDrives(drives);
+    } catch (error) {
+      console.error("Error fetching drives:", error);
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-80px)] flex flex-col justify-between gap-[20px]">
       <div className="flex flex-col gap-[20px]">
@@ -175,7 +199,7 @@ const AddStudentSlider = ({
         />
         <CustomDropdown
           label="Add Vaccination"
-          options={["Hepatitis B", "Polio", "Corona Vaccine"]}
+          options={drives || []}
           value={selectedDrive}
           onChange={(val) => setSelectedDrive(val)}
           fullWidth

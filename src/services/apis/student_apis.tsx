@@ -4,7 +4,10 @@ import {
   CreateStudentPayload,
   CreateStudentResponseModel,
 } from "../models/students/CreateStudent";
-import { UpdateStudentPayload, UpdateStudentResponseModel } from "../models/students/UpdateStudent";
+import {
+  UpdateStudentPayload,
+  UpdateStudentResponseModel,
+} from "../models/students/UpdateStudent";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -20,10 +23,13 @@ class StudentApis {
     });
   }
 
-  public async getStudents(): Promise<GetAllStudentResponse> {
+  public async getStudents(filterParams: any): Promise<GetAllStudentResponse> {
     try {
       const response = await this.api.get<GetAllStudentResponse>(
-        "/api/students/getAllStudents"
+        "/api/students/getAllStudents",
+        {
+          params: filterParams,
+        }
       );
       console.log(response.data);
       return response.data;
