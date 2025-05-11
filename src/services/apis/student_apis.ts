@@ -68,5 +68,22 @@ class StudentApis {
       throw error;
     }
   }
+
+  public async uploadStudents(formData: FormData): Promise<any> {
+    try {
+      const response = await this.api.post(
+        "/api/students/bulkUpload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 export const studentApis = new StudentApis();

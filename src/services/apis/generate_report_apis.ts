@@ -1,24 +1,33 @@
 import axios, { AxiosInstance } from "axios";
-import { GetAllDrivesResponse } from "../models/drive/GetAllDrives";
+import { GenerateReportResponse } from "../models/generate_reports/GenerateReport";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL;
 
-class DriveApis {
+class GenerateReportApis {
   private api: AxiosInstance;
+
   constructor() {
     this.api = axios.create({
       baseURL: API_URL,
-
       headers: {
         "Content-Type": "application/json",
       },
     });
   }
 
-  public async generateReport(): Promise<GetAllDrivesResponse> {
+  // Accept query params for filters
+  public async generateReport(filters?: {
+    vaccineName?: string;
+    class?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<GenerateReportResponse> {
     try {
-      const response = await this.api.get<GetAllDrivesResponse>(
-        "/api/reports/generateReport"
+      const response = await this.api.get<GenerateReportResponse>(
+        "/api/reports/generateReport",
+        {
+          params: filters, // Axios handles encoding
+        }
       );
       console.log(response.data);
       return response.data;
@@ -27,4 +36,5 @@ class DriveApis {
     }
   }
 }
-export const driveApis = new DriveApis();
+
+export const generateReportApis = new GenerateReportApis();

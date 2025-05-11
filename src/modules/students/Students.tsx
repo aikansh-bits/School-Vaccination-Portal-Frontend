@@ -34,7 +34,10 @@ const Students = () => {
         if (searchStudentId) filterParams.studentId = searchStudentId;
         if (selectedGrade) filterParams.class = selectedGrade;
         if (vaccinationStatus)
-          filterParams.vaccinationStatus = vaccinationStatus === "Vaccinated" ? "vaccinated" : "not_vaccinated";
+          filterParams.vaccinationStatus =
+            vaccinationStatus === "Vaccinated"
+              ? "vaccinated"
+              : "not_vaccinated";
       }
 
       // Pass filter parameters dynamically (empty if isClear is true)
@@ -68,19 +71,59 @@ const Students = () => {
     getStudents(true); // This will fetch students without applying any filters
   };
 
+  const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await studentApis.uploadStudents(formData);
+      if (response.status === "success") {
+        alert(`${response.insertedCount} students uploaded successfully.`);
+        getStudents();
+      } else {
+        alert("❌ Upload failed.");
+      }
+    } catch (error: any) {
+      alert(
+        error?.response?.data?.message ||
+          "❌ Upload failed. Please check the file format."
+      );
+    }
+  };
+
   return (
     <div className="flex flex-col bg-graybackground h-full w-full p-[20px] gap-[40px]">
       <div className="flex flex-row justify-between items-center">
         <span className="text-[18px]">Students</span>
-        <div
-          className="rounded-[8px] bg-lightBlue px-[8px] py-[8px] flex flex-row gap-[4px] items-center cursor-pointer"
-          onClick={() => {
-            setSelectedStudent(null);
-            setAddStudentPopupOpen(true);
-            setIsStudentUpdate(false);
-          }}>
-          <span className="material-symbols-outlined text-[20px]">add</span>
-          <span>ADD STUDENT</span>
+        <div className="flex flex-row gap-[20px]">
+          <div
+            className=" rounded-[8px] bg-lightBlue px-[8px] py-[8px] flex flex-row gap-[4px] items-center cursor-pointer"
+            onClick={() => document.getElementById("bulkUploadInput")?.click()}>
+            <span className="material-symbols-outlined text-[20px]">
+              upload
+            </span>
+            <span className="text-[14px] font-semibold">UPLOAD CSV</span>
+            <input
+              type="file"
+              id="bulkUploadInput"
+              accept=".csv"
+              hidden
+              onChange={handleBulkUpload}
+            />
+          </div>
+          <div
+            className="rounded-[8px] bg-lightBlue px-[8px] py-[8px] flex flex-row gap-[4px] items-center cursor-pointer"
+            onClick={() => {
+              setSelectedStudent(null);
+              setAddStudentPopupOpen(true);
+              setIsStudentUpdate(false);
+            }}>
+            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span className="text-[14px] font-semibold">ADD STUDENT</span>
+          </div>
         </div>
       </div>
 
